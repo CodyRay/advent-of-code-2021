@@ -33,4 +33,14 @@ class Day01KtTest {
     fun `test part1`() {
         assertEquals(1167, depthIncreasing(parseDepths(readPuzzleInputLines("day01"))))
     }
+
+    @Test
+    fun `test windowed depth increasing`() {
+        assertEquals(5, windowedDepthIncreasing(EXAMPLE_INPUT))
+    }
+
+    @Test
+    fun `test part2`() {
+        assertEquals(1130, windowedDepthIncreasing(parseDepths(readPuzzleInputLines("day01"))))
+    }
 }
