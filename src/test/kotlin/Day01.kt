@@ -11,28 +11,12 @@ class Day01 {
     @Test
     fun main() {
         val depths = parseDepths(readPuzzleInputLines("Day01"))
-        println("Day 1, Part 1: ${depths.windowedIncreasing(1)}")
-        println("Day 1, Part 2: ${depths.windowedIncreasing(3)}")
-    }
-
-    @Test
-    fun `test depth increasing`() {
-        assertEquals(7, EXAMPLE_INPUT.windowedIncreasing(1))
-    }
-
-    @Test
-    fun `test depth increasing one number`() {
-        assertEquals(0, listOf(199).windowedIncreasing(1))
-    }
-
-    @Test
-    fun `test depth increasing two numbers increasing`() {
-        assertEquals(1, listOf(199, 200).windowedIncreasing(1))
-    }
-
-    @Test
-    fun `test depth increasing two numbers decreasing`() {
-        assertEquals(0, listOf(199, 180).windowedIncreasing(1))
+        val part1 = depths.windowedIncreasing(1)
+        println("Day 1, Part 1: $part1")
+        assertEquals(1167, part1)
+        val part2 = depths.windowedIncreasing(3)
+        println("Day 1, Part 2: $part2")
+        assertEquals(1130, part2)
     }
 
     @Test
@@ -41,17 +25,12 @@ class Day01 {
     }
 
     @Test
-    fun `test part1`() {
-        assertEquals(1167, parseDepths(readPuzzleInputLines("Day01")).windowedIncreasing(1))
-    }
+    fun `test windowed increasing`() {
+        assertEquals(0, listOf(199).windowedIncreasing(1))
+        assertEquals(1, listOf(199, 200).windowedIncreasing(1))
+        assertEquals(0, listOf(199, 180).windowedIncreasing(1))
+        assertEquals(7, EXAMPLE_INPUT.windowedIncreasing(1))
 
-    @Test
-    fun `test windowed depth increasing`() {
         assertEquals(5, EXAMPLE_INPUT.windowedIncreasing(3))
-    }
-
-    @Test
-    fun `test part2`() {
-        assertEquals(1130, parseDepths(readPuzzleInputLines("Day01")).windowedIncreasing(3))
     }
 }
