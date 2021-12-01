@@ -3,7 +3,18 @@ import org.junit.Test
 
 val EXAMPLE_INPUT = listOf(199, 200, 208, 210, 200, 207, 240, 269, 260, 263)
 
-class Day01KtTest {
+fun parseDepths(lines: List<String>): List<Int> = lines.map { it.toInt() }
+
+fun List<Int>.windowedIncreasing(size: Int): Int = windowed(size).map { it.sum() }.windowed(2).count { (x, y) -> x < y }
+
+class Day01 {
+    @Test
+    fun main() {
+        val depths = parseDepths(readPuzzleInputLines("Day01"))
+        println("Day 1, Part 1: ${depths.windowedIncreasing(1)}")
+        println("Day 1, Part 2: ${depths.windowedIncreasing(3)}")
+    }
+
     @Test
     fun `test depth increasing`() {
         assertEquals(7, EXAMPLE_INPUT.windowedIncreasing(1))
@@ -31,7 +42,7 @@ class Day01KtTest {
 
     @Test
     fun `test part1`() {
-        assertEquals(1167, parseDepths(readPuzzleInputLines("day01")).windowedIncreasing(1))
+        assertEquals(1167, parseDepths(readPuzzleInputLines("Day01")).windowedIncreasing(1))
     }
 
     @Test
@@ -41,6 +52,6 @@ class Day01KtTest {
 
     @Test
     fun `test part2`() {
-        assertEquals(1130, parseDepths(readPuzzleInputLines("day01")).windowedIncreasing(3))
+        assertEquals(1130, parseDepths(readPuzzleInputLines("Day01")).windowedIncreasing(3))
     }
 }
