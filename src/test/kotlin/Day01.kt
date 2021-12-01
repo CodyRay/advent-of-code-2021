@@ -5,8 +5,7 @@ val EXAMPLE_INPUT = listOf(199, 200, 208, 210, 200, 207, 240, 269, 260, 263)
 
 fun parseDepths(lines: List<String>): List<Int> = lines.map { it.toInt() }
 
-fun List<Int>.windowedIncreasing(size: Int): Int =
-    windowed(size).map { it.sum() }.zipWithNext().count { it.first < it.second }
+fun List<Int>.windowedIncreasing(size: Int): Int = windowed(size + 1).count { it.first() < it.last() }
 
 class Day01 {
     @Test
