@@ -33,7 +33,7 @@ data class Submarine(val aim: Int, val depth: Int, val horizontal: Int, val hand
 data class Command(val type: String, val movement: Int) {
     companion object {
         fun parseAll(commandStrings: List<String>): List<Command> = commandStrings.map {
-            it.split(' ', limit = 2).let { (type, distanceStr) -> Command(type, distanceStr.toInt()) }
+            Command(it.substringBefore(' '), it.substringAfter(' ').toInt())
         }
     }
 }
