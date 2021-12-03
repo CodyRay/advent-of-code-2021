@@ -1,5 +1,10 @@
+@file:Suppress("PackageDirectoryMismatch")
+
+package day01
+
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import readPuzzleInputLines
 
 val EXAMPLE_INPUT = listOf(199, 200, 208, 210, 200, 207, 240, 269, 260, 263)
 

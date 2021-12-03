@@ -1,4 +1,9 @@
+@file:Suppress("PackageDirectoryMismatch")
+
+package day02
+
 import org.junit.Test
+import readPuzzleInputLines
 import kotlin.test.assertEquals
 
 val EXAMPLE_DATA = listOf(

@@ -1,4 +1,9 @@
+@file:Suppress("PackageDirectoryMismatch")
+
+package day03
+
 import org.junit.Test
+import readPuzzleInputLines
 import kotlin.test.assertEquals
 
 
