@@ -33,27 +33,20 @@ val EXAMPLE_TXT = """
      2  0 12  3  7
 """.trimIndent()
 
-fun parseBingo(exampleTxt: String): Pair<List<Int>, List<BingoBoard>> {
+fun parseBingo(exampleTxt: String): Pair<Set<Int>, List<BingoBoard>> {
     val (callsStr, boardsStr) = exampleTxt.splitGroupedNewlines().splitFirst()
     return Pair(
-        callsStr.split(',').toInts(),
+        callsStr.split(',').toInts().toSet(),
         boardsStr.map { BingoBoard(it.splitWhitespace().toInts()) }
     )
 }
 
-fun playBingo(calls: List<Int>, boards: List<BingoBoard>) =
+fun playBingo(calls: Set<Int>, boards: List<BingoBoard>) =
     calls.indices
         .asSequence()
-        .map { calls.take(it) }
-        .runningFold(
-            Triple<List<Int>, List<BingoBoard>, List<BingoBoard>>(
-                listOf(),
-                listOf(),
-                boards
-            )
-        ) { lastState, partialCalls ->
-            val partialCallsSet = partialCalls.toSet()
-            val (bingo, noBingo) = lastState.third.partition { it.isBingo(partialCallsSet) }
+        .map { calls.take(it).toSet() }
+        .runningFold(Triple(setOf<Int>(), listOf<BingoBoard>(), boards)) { lastState, partialCalls ->
+            val (bingo, noBingo) = lastState.third.partition { it.isBingo(partialCalls) }
             Triple(partialCalls, bingo, noBingo)
         }
 
@@ -67,17 +60,17 @@ data class BingoBoard(val boardValues: List<Int>) {
     fun unmarked(calls: Set<Int>): List<Int> = boardValues.filter { it !in calls }
 }
 
-fun part1(calls: List<Int>, boards: List<BingoBoard>): Int {
+fun part1(calls: Set<Int>, boards: List<BingoBoard>): Int {
     val (winningCalls, winningBoards) = playBingo(calls, boards)
         .first { (_, bs) -> bs.any() }
-    return winningBoards.single().unmarked(winningCalls.toSet()).sum() * winningCalls.last()
+    return winningBoards.single().unmarked(winningCalls).sum() * winningCalls.last()
 }
 
-fun part2(calls: List<Int>, boards: List<BingoBoard>): Int {
+fun part2(calls: Set<Int>, boards: List<BingoBoard>): Int {
     val (finalCalls, lastBoards) = playBingo(calls, boards)
         .first { (_, _, bs) -> bs.none() }
 
-    return lastBoards.single().unmarked(finalCalls.toSet()).sum() * finalCalls.last()
+    return lastBoards.single().unmarked(finalCalls).sum() * finalCalls.last()
 }
 
 class Day04 {
@@ -96,7 +89,7 @@ class Day04 {
     fun `test parsing`() {
         val (calls, boards) = parseBingo(EXAMPLE_TXT)
         assertEquals(
-            listOf(
+            setOf(
                 7, 4, 9, 5, 11, 17, 23, 2, 0, 14, 21, 24, 10, 16, 13, 6, 15, 25, 12, 22, 18, 20, 8, 19, 3, 26, 1
             ), calls
         )
