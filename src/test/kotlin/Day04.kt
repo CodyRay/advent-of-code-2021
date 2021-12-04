@@ -4,10 +4,12 @@ package day04
 
 import org.junit.Test
 import readPuzzleInputText
+import splitFirst
+import splitGroupedNewlines
+import splitWhitespace
+import toInts
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-
-fun <T> List<T>.splitFirst() = Pair(take(1).single(), drop(1))
 
 val EXAMPLE_TXT = """
     7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1
@@ -32,26 +34,36 @@ val EXAMPLE_TXT = """
 """.trimIndent()
 
 fun parseBingo(exampleTxt: String): Pair<List<Int>, List<BingoBoard>> {
-    val (callsStr, boardsStr) = exampleTxt.split("\n\n").splitFirst()
-    val calls = callsStr.split(',').map { it.toInt() }
-    val boards = boardsStr.map { boardTxt ->
-        BingoBoard(boardTxt.split("""\s+""".toRegex()).filter { !it.isBlank() }.map { it.toInt() })
-    }
-    return Pair(calls, boards)
+    val (callsStr, boardsStr) = exampleTxt.splitGroupedNewlines().splitFirst()
+    return Pair(
+        callsStr.split(',').toInts(),
+        boardsStr.map { BingoBoard(it.splitWhitespace().toInts()) }
+    )
 }
 
+fun playBingo(calls: List<Int>, boards: List<BingoBoard>) =
+    calls.indices
+        .asSequence()
+        .map { calls.take(it) }
+        .runningFold(
+            Triple<List<Int>, List<BingoBoard>, List<BingoBoard>>(
+                listOf(),
+                listOf(),
+                boards
+            )
+        ) { lastState, partialCalls ->
+            val partialCallsSet = partialCalls.toSet()
+            val (bingo, noBingo) = lastState.third.partition { it.isBingo(partialCallsSet) }
+            Triple(partialCalls, bingo, noBingo)
+        }
+
 val BINGO_PATTERNS = listOf(
-    // listOf((0..4).map { x -> x * 6 }, (0..4).map { x -> x * 4 + 4 }),
     (0..4).map { x -> (0..4).map { y -> x * 5 + y } },
     (0..4).map { x -> (0..4).map { y -> x + y * 5 } }
 ).flatten()
 
-
 data class BingoBoard(val boardValues: List<Int>) {
-    fun isBingo(calls: Set<Int>): Boolean = BINGO_PATTERNS.any { pattern -> pattern.all { boardValues[it] in calls } }
-    fun getBingoPattern(calls: Set<Int>): List<Int> =
-        BINGO_PATTERNS.first { pattern -> pattern.all { boardValues[it] in calls } }
-
+    fun isBingo(calls: Set<Int>) = BINGO_PATTERNS.any { pattern -> pattern.all { boardValues[it] in calls } }
     fun unmarked(calls: Set<Int>): List<Int> = boardValues.filter { it !in calls }
 }
 
@@ -62,28 +74,11 @@ fun part1(calls: List<Int>, boards: List<BingoBoard>): Int {
 }
 
 fun part2(calls: List<Int>, boards: List<BingoBoard>): Int {
-    val (pen, final) = playBingo(calls, boards)
-        .zipWithNext()
-        .takeWhile { (lastState, _) -> lastState.third.any() }
-        .map { it.second }
-        .toList()
-        .takeLast(2)
+    val (finalCalls, lastBoards) = playBingo(calls, boards)
+        .first { (_, _, bs) -> bs.none() }
 
-    val (_, penBoards) = pen
-    val (finalCalls, finalBoards) = final
-    val lastBoard = finalBoards.subtract(penBoards.toSet()).single()
-    return lastBoard.unmarked(finalCalls.toSet()).sum() * finalCalls.last()
+    return lastBoards.single().unmarked(finalCalls.toSet()).sum() * finalCalls.last()
 }
-
-private fun playBingo(calls: List<Int>, boards: List<BingoBoard>) =
-    calls.indices
-        .asSequence()
-        .map { calls.take(it) }
-        .map { partialCalls ->
-            val partialCallsSet = partialCalls.toSet()
-            val (bingo, noBingo) = boards.partition { it.isBingo(partialCallsSet) }
-            Triple(partialCalls, bingo, noBingo)
-        }
 
 class Day04 {
     @Test

@@ -1,0 +1,1 @@
+fun <T> List<T>.splitFirst() = Pair(take(1).single(), drop(1))
