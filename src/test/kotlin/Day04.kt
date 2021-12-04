@@ -41,15 +41,6 @@ fun parseBingo(exampleTxt: String): Pair<Set<Int>, List<BingoBoard>> {
     )
 }
 
-fun playBingo(calls: Set<Int>, boards: List<BingoBoard>) =
-    calls.indices
-        .asSequence()
-        .map { calls.take(it).toSet() }
-        .runningFold(Triple(setOf<Int>(), listOf<BingoBoard>(), boards)) { lastState, partialCalls ->
-            val (bingo, noBingo) = lastState.third.partition { it.isBingo(partialCalls) }
-            Triple(partialCalls, bingo, noBingo)
-        }
-
 val BINGO_PATTERNS = listOf(
     (0..4).map { x -> (0..4).map { y -> x * 5 + y } },
     (0..4).map { x -> (0..4).map { y -> x + y * 5 } }
@@ -58,19 +49,37 @@ val BINGO_PATTERNS = listOf(
 data class BingoBoard(val boardValues: List<Int>) {
     fun isBingo(calls: Set<Int>) = BINGO_PATTERNS.any { pattern -> pattern.all { boardValues[it] in calls } }
     fun unmarked(calls: Set<Int>): List<Int> = boardValues.filter { it !in calls }
+    fun finalScore(calls: Set<Int>): Int = unmarked(calls).sum() * calls.last()
+}
+
+data class BingoGame(
+    val remainingBoards: List<BingoBoard> = listOf(),
+    val newBingoBoards: List<BingoBoard> = listOf(),
+    val calls: Set<Int> = setOf(),
+) {
+    fun call(number: Int): BingoGame {
+        val newCalls = calls + number
+        val (new, remaining) = remainingBoards.partition { it.isBingo(newCalls) }
+        return BingoGame(remaining, new, newCalls)
+    }
+
+    companion object {
+        fun play(calls: Set<Int>, boards: List<BingoBoard>) =
+            calls.runningFold(BingoGame(boards)) { game, call -> game.call(call) }
+    }
 }
 
 fun part1(calls: Set<Int>, boards: List<BingoBoard>): Int {
-    val (winningCalls, winningBoards) = playBingo(calls, boards)
-        .first { (_, bs) -> bs.any() }
-    return winningBoards.single().unmarked(winningCalls).sum() * winningCalls.last()
+    val endGame = BingoGame.play(calls, boards)
+        .first { gameState -> gameState.newBingoBoards.any() }
+    return endGame.newBingoBoards.single().finalScore(endGame.calls)
 }
 
 fun part2(calls: Set<Int>, boards: List<BingoBoard>): Int {
-    val (finalCalls, lastBoards) = playBingo(calls, boards)
-        .first { (_, _, bs) -> bs.none() }
+    val endGame = BingoGame.play(calls, boards)
+        .first { gameState -> gameState.remainingBoards.none() }
 
-    return lastBoards.single().unmarked(finalCalls).sum() * finalCalls.last()
+    return endGame.newBingoBoards.single().finalScore(endGame.calls)
 }
 
 class Day04 {
