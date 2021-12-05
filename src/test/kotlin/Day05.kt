@@ -4,9 +4,10 @@ package day05
 
 import org.junit.Test
 import readPuzzleInputLines
+import kotlin.math.abs
 import kotlin.test.assertEquals
 
-fun pointCount(p1: Point, p2: Point) = maxOf(kotlin.math.abs(p1.x - p2.x), kotlin.math.abs(p1.y - p2.y)) + 1
+fun pointCount(p1: Point, p2: Point) = maxOf(abs(p1.x - p2.x), abs(p1.y - p2.y)) + 1
 fun oneDirectionalRange(start: Int, end: Int, count: Int) = if (start == end) {
     Array(count) { start }.toList()
 } else if (start < end) {
@@ -38,19 +39,17 @@ fun parseLine(lineString: String): Line {
     return Line(Point(x1.toInt(), y1.toInt()), Point(x2.toInt(), y2.toInt()))
 }
 
+fun List<Line>.countDangerousAreas() = flatMap { it.allPoints() }
+    .groupBy { it }
+    .values
+    .count { it.size >= 2 }
+
 fun part1(lines: List<Line>) = lines
     .filter { it.straight() }
-    .flatMap { it.allPoints() }
-    .groupBy { it }
-    .values
-    .count { it.size >= 2 }
+    .countDangerousAreas()
 
 fun part2(lines: List<Line>) = lines
-    .flatMap { it.allPoints() }
-    .groupBy { it }
-    .values
-    .count { it.size >= 2 }
-
+    .countDangerousAreas()
 
 class Day05 {
     @Test
