@@ -44,7 +44,7 @@ fun dijkstras(map: RiskMap): Int {
 fun List<String>.parse(): RiskMap = map { line -> line.map { it.digitToInt() } }
 
 
-class Day14 {
+class Day15 {
     @Test
     fun main() {
         val parsed = readPuzzleInputLines("Day15").parse()
