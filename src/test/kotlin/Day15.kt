@@ -207,6 +207,22 @@ fun npMemoization(map: RiskMap): Int {
     return success[map.start()]!!
 }
 
+fun RiskMap.allPoints() = indices.flatMap { y -> first().map { x -> Point(this, x, y) } }
+
+fun dijkstras(map: RiskMap): Int {
+    val queue = mutableListOf(Pair(0, map.start()))
+    val visited = mutableSetOf<Point>()
+    while (queue.first().second != map.end()) {
+        val (riskLevel, point) = queue.removeFirst()
+        if (point !in visited) {
+            queue.priorityEnqueueAll(point.directions()
+                .map { Pair(riskLevel + map[it], it) })
+            visited.add(point)
+        }
+    }
+    return queue.first().first
+}
+
 fun List<String>.parse(): RiskMap = map { line -> line.map { it.digitToInt() } }
 
 
@@ -214,9 +230,9 @@ class Day14 {
     @Test
     fun main() {
         val parsed = readPuzzleInputLines("Day15").parse()
-        val part1 = finalAttempt(parsed)
+        val part1 = dijkstras(parsed)
         println("Day 15, Part 1: $part1")
-        //assertEquals(, part1)
+        assertEquals(717, part1)
         val part2 = 2
         println("Day 15, Part 2: $part2")
         //assertEquals(, part2)
@@ -323,6 +339,6 @@ class Day14 {
             listOf(Pair(0, ""), Pair(0, ""), Pair(3, ""), Pair(4, ""), Pair(5, ""), Pair(6, "")),
             queue.priorityEnqueue(Pair(6, ""))
         )
-        assertEquals(40, finalAttempt(exampleX))
+        assertEquals(40, dijkstras(exampleX))
     }
 }
